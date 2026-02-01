@@ -25,4 +25,6 @@ go run .
 
 ## Self-Development Success
 
-After finishing the tutorial, I used GoAgent to build GoAgent itself. With just four tools, it was able to successfully modify itself and change its color to orange.
+After finishing the tutorial, I used GoAgent to modify GoAgent itself. With just four tools, it managed to change its own color to orange.
+
+![GoAgent with orange output](docs/img.png)
