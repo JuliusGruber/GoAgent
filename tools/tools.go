@@ -6,5 +6,6 @@ func GetAllTools() []agent.ToolDefinition {
 	return []agent.ToolDefinition{
 		ReadFileDefinition,
 		ListFilesDefinition,
+		EditFileDefinition,
 	}
 }
