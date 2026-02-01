@@ -6,9 +6,33 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/anthropics/anthropic-sdk-go"
 	"goagent/agent"
+
+	"github.com/anthropics/anthropic-sdk-go"
+	"github.com/anthropics/anthropic-sdk-go/option"
 )
+
+func main() {
+	apiKey, ok := getAnthropicAPIKey()
+	if !ok {
+		return
+	}
+	client := anthropic.NewClient(option.WithAPIKey(apiKey))
+	claudeAgent := agent.NewAgent(&client, getUserMessage)
+	err := claudeAgent.RunConversationLoop(context.TODO())
+	if err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+	}
+}
+
+func getAnthropicAPIKey() (string, bool) {
+	apiKey := os.Getenv("ANTHROPIC_API_KEY")
+	if apiKey == "" {
+		fmt.Println("Error: ANTHROPIC_API_KEY environment variable is not set")
+		return "", false
+	}
+	return apiKey, true
+}
 
 var scanner = bufio.NewScanner(os.Stdin)
 
@@ -17,13 +41,4 @@ func getUserMessage() (string, bool) {
 		return "", false
 	}
 	return scanner.Text(), true
-}
-
-func main() {
-	client := anthropic.NewClient()
-	claudeAgent := agent.NewAgent(&client, getUserMessage)
-	err := claudeAgent.Run(context.TODO())
-	if err != nil {
-		fmt.Printf("Error: %s\n", err.Error())
-	}
 }
