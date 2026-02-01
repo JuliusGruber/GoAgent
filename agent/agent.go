@@ -10,16 +10,17 @@ import (
 type Agent struct {
 	client         *anthropic.Client
 	getUserMessage func() (string, bool)
+	tools          []ToolDefinition
 }
 
-func NewAgent(client *anthropic.Client, getUserMessage func() (string, bool)) *Agent {
+func NewAgent(client *anthropic.Client, getUserMessage func() (string, bool), tools []ToolDefinition) *Agent {
 	return &Agent{
 		client:         client,
 		getUserMessage: getUserMessage,
 	}
 }
 
-func (a *Agent) Run(ctx context.Context) error {
+func (a *Agent) RunConversationLoop(ctx context.Context) error {
 	conversation := []anthropic.MessageParam{}
 
 	fmt.Println("Chat with Claude (use 'ctrl-c' to quit)")
@@ -52,10 +53,22 @@ func (a *Agent) Run(ctx context.Context) error {
 }
 
 func (a *Agent) runInference(ctx context.Context, conversation []anthropic.MessageParam) (*anthropic.Message, error) {
+	anthropicTools := []anthropic.ToolUnionParam{}
+	for _, tool := range a.tools {
+		anthropicTools = append(anthropicTools, anthropic.ToolUnionParam{
+			OfTool: &anthropic.ToolParam{
+				Name:        tool.Name,
+				Description: anthropic.String(tool.Description),
+				InputSchema: tool.InputSchema,
+			},
+		})
+	}
+
 	message, err := a.client.Messages.New(ctx, anthropic.MessageNewParams{
-		Model:     anthropic.ModelClaude3_7SonnetLatest,
+		Model:     anthropic.ModelClaudeSonnet4_20250514,
 		MaxTokens: int64(1024),
 		Messages:  conversation,
+		Tools:     anthropicTools,
 	})
 	return message, err
 }
