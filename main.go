@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"goagent/agent"
+	"goagent/tools"
 
 	"github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
@@ -20,8 +21,7 @@ func main() {
 		return
 	}
 	client := anthropic.NewClient(option.WithAPIKey(apiKey))
-	tools := []agent.ToolDefinition{}
-	claudeAgent := agent.NewAgent(&client, getUserMessage, tools)
+	claudeAgent := agent.NewAgent(&client, getUserMessage, tools.GetAllTools())
 	err := claudeAgent.RunConversationLoop(context.TODO())
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())

@@ -17,6 +17,7 @@ func NewAgent(client *anthropic.Client, getUserMessage func() (string, bool), to
 	return &Agent{
 		client:         client,
 		getUserMessage: getUserMessage,
+		tools:          tools,
 	}
 }
 
