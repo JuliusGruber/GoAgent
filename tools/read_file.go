@@ -18,6 +18,7 @@ var ReadFileDefinition = agent.ToolDefinition{
 	Function:    ReadFile,
 }
 
+// ReadFile is executed locally by the agent when Claude responds with a tool_use block.
 func ReadFile(input json.RawMessage) (string, error) {
 	parsed, err := ParseInput[ReadFileInput](input)
 	if err != nil {
