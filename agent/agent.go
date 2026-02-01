@@ -28,7 +28,7 @@ func (a *Agent) RunConversationLoop(ctx context.Context) error {
 	fmt.Println("Chat with Claude (use 'ctrl-c' to quit)")
 
 	for {
-		fmt.Print("\u001b[94mYou\u001b[0m: ")
+		fmt.Print("\u001b[92mYou\u001b[0m: ")
 		userInput, ok := a.getUserMessage()
 		if !ok {
 			break
