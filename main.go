@@ -12,6 +12,8 @@ import (
 	"github.com/anthropics/anthropic-sdk-go/option"
 )
 
+var scanner = bufio.NewScanner(os.Stdin)
+
 func main() {
 	apiKey, ok := getAnthropicAPIKey()
 	if !ok {
@@ -33,8 +35,6 @@ func getAnthropicAPIKey() (string, bool) {
 	}
 	return apiKey, true
 }
-
-var scanner = bufio.NewScanner(os.Stdin)
 
 func getUserMessage() (string, bool) {
 	if !scanner.Scan() {
