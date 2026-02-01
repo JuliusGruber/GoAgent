@@ -20,7 +20,8 @@ func main() {
 		return
 	}
 	client := anthropic.NewClient(option.WithAPIKey(apiKey))
-	claudeAgent := agent.NewAgent(&client, getUserMessage)
+	tools := []agent.ToolDefinition{}
+	claudeAgent := agent.NewAgent(&client, getUserMessage, tools)
 	err := claudeAgent.RunConversationLoop(context.TODO())
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
