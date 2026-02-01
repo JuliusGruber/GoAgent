@@ -22,3 +22,9 @@ Run the agent:
 ```bash
 go run .
 ```
+
+## Self-Development Success
+
+After finishing the tutorial, I used GoAgent to develop GoAgent itself. With just four tools, the agent successfully changed its own color!
+
+![GoAgent changing its own color](docs/img.png)
