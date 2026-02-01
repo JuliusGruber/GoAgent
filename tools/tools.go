@@ -8,5 +8,6 @@ func GetAllTools() []agent.ToolDefinition {
 		ListFilesDefinition,
 		EditFileDefinition,
 		CreateFileDefinition,
+		GhDefinition,
 	}
 }
