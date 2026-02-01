@@ -5,6 +5,9 @@ import (
 	"context"
 	"fmt"
 	"os"
+
+	"github.com/anthropics/anthropic-sdk-go"
+	"goagent/agent"
 )
 
 func main() {
@@ -18,8 +21,8 @@ func main() {
 		return scanner.Text(), true
 	}
 
-	agent := NewAgent(&client, getUserMessage)
-	err := agent.Run(context.TODO())
+	a := agent.NewAgent(&client, getUserMessage)
+	err := a.Run(context.TODO())
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 	}
