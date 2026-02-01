@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/anthropics/anthropic-sdk-go"
@@ -36,21 +37,60 @@ func (a *Agent) RunConversationLoop(ctx context.Context) error {
 		userMessage := anthropic.NewUserMessage(anthropic.NewTextBlock(userInput))
 		conversation = append(conversation, userMessage)
 
-		message, err := a.runInference(ctx, conversation)
-		if err != nil {
-			return err
-		}
-		conversation = append(conversation, message.ToParam())
-
-		for _, content := range message.Content {
-			switch content.Type {
-			case "text":
-				fmt.Printf("\u001b[93mClaude\u001b[0m: %s\n", content.Text)
+		// Loop to handle tool use - Claude may need multiple turns
+		for {
+			message, err := a.runInference(ctx, conversation)
+			if err != nil {
+				return err
 			}
+			conversation = append(conversation, message.ToParam())
+
+			// Check if Claude wants to use any tools
+			toolResults := []anthropic.ContentBlockParamUnion{}
+			for _, content := range message.Content {
+				switch content.Type {
+				case "text":
+					fmt.Printf("\u001b[93mClaude\u001b[0m: %s\n", content.Text)
+				case "tool_use":
+					result := a.executeTool(content.ID, content.Name, content.Input)
+					toolResults = append(toolResults, result)
+				}
+			}
+
+			// If no tools were used, we're done with this turn
+			if len(toolResults) == 0 {
+				break
+			}
+
+			// Add tool results and let Claude continue
+			conversation = append(conversation, anthropic.NewUserMessage(toolResults...))
 		}
 	}
 
 	return nil
+}
+
+func (a *Agent) executeTool(toolID, toolName string, input json.RawMessage) anthropic.ContentBlockParamUnion {
+	// Find the tool by name
+	var toolDef *ToolDefinition
+	for _, t := range a.tools {
+		if t.Name == toolName {
+			toolDef = &t
+			break
+		}
+	}
+
+	if toolDef == nil {
+		return anthropic.NewToolResultBlock(toolID, fmt.Sprintf("tool %q not found", toolName), true)
+	}
+
+	// Execute the tool
+	result, err := toolDef.Function(input)
+	if err != nil {
+		return anthropic.NewToolResultBlock(toolID, fmt.Sprintf("error: %s", err.Error()), true)
+	}
+
+	return anthropic.NewToolResultBlock(toolID, result, false)
 }
 
 func (a *Agent) runInference(ctx context.Context, conversation []anthropic.MessageParam) (*anthropic.Message, error) {
