@@ -37,7 +37,8 @@ func (a *Agent) RunConversationLoop(ctx context.Context) error {
 		userMessage := anthropic.NewUserMessage(anthropic.NewTextBlock(userInput))
 		conversation = append(conversation, userMessage)
 
-		// Loop to handle tool use - Claude may need multiple turns
+		// Inner tool loop: keeps calling Claude until no more tool_use blocks are returned.
+		// This allows Claude to chain multiple tool calls autonomously without user input.
 		for {
 			message, err := a.runInference(ctx, conversation)
 			if err != nil {
